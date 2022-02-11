@@ -1,33 +1,44 @@
 import requests
-from src.validator import ValidateJson
-
-
-def validate_url_params(params: dict):
-    ValidateJson.pydantic_validate(params)
-    if params['region'] == 'br':
-        symbol_slice = params['symbol']
-        params.update(symbol=symbol_slice[:4])
-        return params
-    return params
+from src.validator import ParamsJson
+from src.enum import RegionEnum, StatusCodeEnum
+from decouple import config
 
 
 def create_url_path(params: dict):
     params_dict = validate_url_params(params)
-    url_path = f"https://sigame-companies-logo.s3.sa-east-1.amazonaws.com/{params_dict['region']}/{params_dict['symbol']}.png"
+    url_path = f"https://{config('BASE_PATH_TICKER_VISUAL_IDENTITY')}/{params_dict['region']}/{params_dict['symbol']}.{config('VISUAL_IDENTITY_EXTENSION')}"
     return url_path
 
 
-def _raise(exception: Exception):
-    raise exception
+def validate_url_params(params: dict):
+    ParamsJson.pydantic_validate(params)
+    if params['region'] == RegionEnum.br.value:
+        ticker = params['symbol']
+        ticker_slice_index = int(config('TICKER_SLICE_INDEX'))
+        ticker_without_sufix_number = ticker[:ticker_slice_index]
+        params.update(symbol=ticker_without_sufix_number)
+        return params
+    return params
 
 
 def check_if_url_is_valid(url_path: str):
     response_status_code = requests.get(url_path).status_code
-    on_error = lambda: _raise(Exception('Something wrong'))
     dic_response = {
-        200: lambda: True,
-        400: lambda: _raise(Exception('Bad Request', 400)),
-        403: lambda: _raise(Exception('Acess Denied', 403)),
+        StatusCodeEnum.sucess.value: lambda: _response(True, url_path),
+        StatusCodeEnum.bad_request.value: lambda: _response(False, ''),
+        StatusCodeEnum.internal_server_error.value: lambda: _raise(Exception('Internal server error'))
     }
-    response = dic_response.get(response_status_code, on_error)
-    response()
+    response = dic_response.get(response_status_code, StatusCodeEnum.internal_server_error.value)
+    return response()
+
+
+def _response(boll, url_path):
+    response = {
+        'status': boll,
+        'logo_uri': url_path,
+        }
+    return response
+
+
+def _raise(exception: Exception):
+    raise exception

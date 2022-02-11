@@ -1,13 +1,8 @@
-from enum import Enum
 from pydantic import BaseModel, Extra, validator
+from src.enum import RegionEnum
 
 
-class RegionEnum(str, Enum):
-    br = 'br'
-    us = 'us'
-
-
-class ValidateJson(BaseModel, extra=Extra.forbid):
+class ParamsJson(BaseModel, extra=Extra.forbid):
     symbol: str
     region: RegionEnum
 
@@ -17,6 +12,18 @@ class ValidateJson(BaseModel, extra=Extra.forbid):
             raise ValueError("Symbol is empty.")
         return symbol
 
+    @validator('symbol')
+    def is_alpha(symbol):
+        if symbol.isnumeric():
+            raise ValueError('Wrong format type')
+        return symbol
+
+    @validator('region')
+    def is_numeric(region):
+        if not region.isalpha():
+            raise ValueError('Wrong format type')
+        return region
+
     @staticmethod
     def pydantic_validate(json: dict):
-        return ValidateJson(**json)
+        return ParamsJson(**json)
