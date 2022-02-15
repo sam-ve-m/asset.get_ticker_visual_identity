@@ -1,6 +1,6 @@
 import requests
-from src.validator import ParamsJson
-from src.enum import RegionEnum, StatusCodeEnum
+from func.src.validator import MandatoryParameters
+from func.src.enum import RegionEnum, StatusCodeEnum
 from decouple import config
 
 
@@ -11,12 +11,12 @@ def create_url_path(params: dict):
 
 
 def validate_url_params(params: dict):
-    ParamsJson.pydantic_validate(params)
+    MandatoryParameters.validate_unpacking(params)
     if params['region'] == RegionEnum.br.value:
         ticker = params['symbol']
         ticker_slice_index = int(config('TICKER_SLICE_INDEX'))
-        ticker_without_sufix_number = ticker[:ticker_slice_index]
-        params.update(symbol=ticker_without_sufix_number)
+        ticker_without_suffix_number = ticker[:ticker_slice_index]
+        params.update(symbol=ticker_without_suffix_number)
         return params
     return params
 
@@ -28,8 +28,9 @@ def check_if_url_is_valid(url_path: str):
         StatusCodeEnum.bad_request.value: lambda: _response(False, ''),
         StatusCodeEnum.internal_server_error.value: lambda: _raise(Exception('Internal server error'))
     }
-    response = dic_response.get(response_status_code, StatusCodeEnum.internal_server_error.value)
-    return response()
+    lambda_response = dic_response.get(response_status_code, StatusCodeEnum.internal_server_error.value)
+    response = lambda_response()
+    return response
 
 
 def _response(boll, url_path):

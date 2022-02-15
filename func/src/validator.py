@@ -1,8 +1,8 @@
 from pydantic import BaseModel, Extra, validator
-from src.enum import RegionEnum
+from func.src.enum import RegionEnum
 
 
-class ParamsJson(BaseModel, extra=Extra.forbid):
+class MandatoryParameters(BaseModel, extra=Extra.forbid):
     symbol: str
     region: RegionEnum
 
@@ -25,5 +25,5 @@ class ParamsJson(BaseModel, extra=Extra.forbid):
         return region
 
     @staticmethod
-    def pydantic_validate(json: dict):
-        return ParamsJson(**json)
+    def validate_unpacking(json: dict):
+        return MandatoryParameters(**json)
