@@ -1,7 +1,9 @@
-import requests
-from func.src.validator import MandatoryParameters
-from func.src.enum import RegionEnum, StatusCodeEnum
 from decouple import config
+import requests
+
+from .validator import MandatoryParameters
+from .enum import RegionEnum, StatusCodeEnum
+
 
 
 def create_url_path(params: dict):

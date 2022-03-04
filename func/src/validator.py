@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Extra, validator
-from func.src.enum import RegionEnum
+
+from .enum import RegionEnum
 
 
 class MandatoryParameters(BaseModel, extra=Extra.forbid):
