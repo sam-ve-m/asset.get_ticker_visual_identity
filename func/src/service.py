@@ -5,41 +5,44 @@ from .validator import MandatoryParameters
 from .enum import RegionEnum, StatusCodeEnum
 
 
-
-def create_url_path(params: dict):
+def create_ticker_url_path(params: dict) -> str:
     params_dict = validate_url_params(params)
     url_path = f"https://{config('BASE_PATH_TICKER_VISUAL_IDENTITY')}/{params_dict['region']}/{params_dict['symbol']}.{config('VISUAL_IDENTITY_EXTENSION')}"
     return url_path
 
 
-def validate_url_params(params: dict):
+def validate_url_params(params: dict) -> dict:
     MandatoryParameters.validate_unpacking(params)
-    if params['region'] == RegionEnum.br.value:
-        ticker = params['symbol']
-        ticker_slice_index = int(config('TICKER_SLICE_INDEX'))
+    if params["region"] == RegionEnum.br.value:
+        ticker = params["symbol"]
+        ticker_slice_index = int(config("TICKER_SLICE_INDEX"))
         ticker_without_suffix_number = ticker[:ticker_slice_index]
         params.update(symbol=ticker_without_suffix_number)
         return params
     return params
 
 
-def check_if_url_is_valid(url_path: str):
+def check_if_url_is_valid(url_path: str) -> dict:
     response_status_code = requests.get(url_path).status_code
     dic_response = {
         StatusCodeEnum.sucess.value: lambda: _response(True, url_path),
-        StatusCodeEnum.bad_request.value: lambda: _response(False, ''),
-        StatusCodeEnum.internal_server_error.value: lambda: _raise(Exception('Internal server error'))
+        StatusCodeEnum.bad_request.value: lambda: _response(False, ""),
+        StatusCodeEnum.internal_server_error.value: lambda: _raise(
+            Exception("Internal server error")
+        ),
     }
-    lambda_response = dic_response.get(response_status_code, StatusCodeEnum.internal_server_error.value)
+    lambda_response = dic_response.get(
+        response_status_code, StatusCodeEnum.internal_server_error.value
+    )
     response = lambda_response()
     return response
 
 
-def _response(boll, url_path):
+def _response(status: bool, url_path: str) -> dict:
     response = {
-        'status': boll,
-        'logo_uri': url_path,
-        }
+        "status": status,
+        "logo_uri": url_path,
+    }
     return response
 
 

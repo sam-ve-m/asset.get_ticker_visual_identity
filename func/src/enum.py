@@ -2,8 +2,8 @@ from enum import Enum, IntEnum
 
 
 class RegionEnum(str, Enum):
-    br = 'br'
-    us = 'us'
+    br = "br"
+    us = "us"
 
 
 class StatusCodeEnum(IntEnum):
