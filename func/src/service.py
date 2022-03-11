@@ -22,17 +22,21 @@ def validate_url_params(params: dict) -> dict:
     return params
 
 
-def check_if_url_is_valid(url_path: str) -> dict:
-    response_status_code = requests.get(url_path).status_code
+def get_requests_object_from_url_path(url_path: str) -> object:
+    requests_response = requests.get(url_path)
+    return requests_response
+
+
+def get_response_from_url_path(requests_response: object) -> dict:
     dic_response = {
-        StatusCodeEnum.sucess.value: lambda: _response(True, url_path),
+        StatusCodeEnum.sucess.value: lambda: _response(True, requests_response.url),
         StatusCodeEnum.bad_request.value: lambda: _response(False, ""),
         StatusCodeEnum.internal_server_error.value: lambda: _raise(
             Exception("Internal server error")
         ),
     }
     lambda_response = dic_response.get(
-        response_status_code, StatusCodeEnum.internal_server_error.value
+        requests_response.status_code, StatusCodeEnum.internal_server_error.value
     )
     response = lambda_response()
     return response

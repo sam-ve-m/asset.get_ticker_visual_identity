@@ -1,21 +1,18 @@
 from flask import request, Response
 from json import dumps
-from logging import getLogger
+from etria_logger import Gladsheim
 
 from src import service
-
-log = getLogger()
 
 
 def get_ticker_visual_identity():
     try:
         params = request.json
         url_path = service.create_ticker_url_path(params)
-        response = service.check_if_url_is_valid(url_path)
+        requests_obj = service.get_requests_object_from_url_path(url_path)
+        response = service.get_response_from_url_path(requests_obj)
         return Response(dumps(response), mimetype="application/json", status=200)
     except Exception as error:
-        log.error(str(error), exc_info=error)
-        response = {
-            "message": str(error),
-        }
-        return Response(dumps(response), mimetype="application/json", status=400)
+        message = { "message": "Fission: get_ticker_visual_identity"}
+        Gladsheim.error(error, message)
+        return Response(dumps(message), mimetype="application/json", status=403)

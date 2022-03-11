@@ -1,5 +1,10 @@
-from src.service import create_ticker_url_path, check_if_url_is_valid
+from func.src.service import (
+    create_ticker_url_path,
+    get_requests_object_from_url_path,
+    get_response_from_url_path,
+)
 from pydantic import ValidationError
+from unittest.mock import patch
 import pytest
 
 
@@ -89,13 +94,62 @@ def test_when_region_us_and_symbol_is_invalid_str_then_create_invalid_url():
     )
 
 
-def test_when_url_valid_then_return_true():
-    url_path = "https://sigame-companies-logo.s3.sa-east-1.amazonaws.com/br/PETR.png"
-    response = check_if_url_is_valid(url_path)
-    assert response["status"] is True
+class RequestsObj:
+    def __init__(self) -> None:
+        self.url = None
+        self.status_code = None
+
+    def url(self):
+        return self.url
+
+    def set_url(self, url):
+        self.url = url
+        return self
+
+    def status_code(self):
+        return self.status_code
+
+    def set_status_code(self, status_code):
+        self.status_code = status_code
+        return self
 
 
-def test_when_invalid_url_then_return_false():
-    url_path = "https://sigame-companies-logo.s3.sa-east-1.amazonaws.com/br/aaPETR.png"
-    response = check_if_url_is_valid(url_path)
-    assert response["status"] is False
+@patch('func.src.service.requests.get')
+def test_when_requests_valid_url_then_return_requests_object(mock_get_requests_object):
+    url = "https://sigame-companies-logo.s3.sa-east-1.amazonaws.com/br/PETR.png"
+    mock_get_requests_object.return_value = RequestsObj().set_url(url).set_status_code(200)
+    requests_response = get_requests_object_from_url_path(url)
+    assert requests_response.status_code == 200
+    assert requests_response.url == url
+
+
+@patch('func.src.service.requests.get')
+def test_when_requests_invalid_url_then_return_requests_object(mock_get_requests_object):
+    url = "https://sigame-companies-logo.s3.sa-east-1.amazonaws.com/br/123123PETR.png"
+    mock_get_requests_object.return_value = RequestsObj().set_url(url).set_status_code(403)
+    requests_response = get_requests_object_from_url_path(url)
+    assert requests_response.status_code == 403
+    assert requests_response.url == url
+
+
+def test_when_200_status_code_then_response_true():
+    url = "https://sigame-companies-logo.s3.sa-east-1.amazonaws.com/br/PETR.png"
+    params = RequestsObj().set_status_code(200).set_url(url)
+    response = get_response_from_url_path(params)
+    assert response['status'] is True
+    assert response['logo_uri'] == url
+
+
+def test_when_403_status_code_then_response_true():
+    url = "https://sigame-companies-logo.s3.sa-east-1.amazonaws.com/br/123123PETR.png"
+    params = RequestsObj().set_status_code(403).set_url(url)
+    response = get_response_from_url_path(params)
+    assert response['status'] is False
+    assert response['logo_uri'] == ''
+
+
+def test_when_not_expected_status_code_then_response_raises():
+    url = "https://sigame-companies-logo.s3.sa-east-1.amazonaws.com/br/123123PETR.png"
+    params = RequestsObj().set_status_code(500).set_url(url)
+    with pytest.raises(Exception, match='Internal server error'):
+        get_response_from_url_path(params)
