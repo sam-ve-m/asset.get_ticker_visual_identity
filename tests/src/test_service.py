@@ -1,29 +1,13 @@
+from .conftest import TickerDataBuilder, StubRequestsObj
 from func.src.service import (
     create_ticker_url_path,
     get_requests_object_from_url_path,
     get_response_from_url_path,
 )
+
 from pydantic import ValidationError
 from unittest.mock import patch
 import pytest
-
-
-class TickerDataBuilder:
-    def __init__(self):
-        self.symbol = None
-        self.region = None
-
-    def set_symbol(self, symbol: str):
-        self.symbol = symbol
-        return self
-
-    def set_region(self, region: str):
-        self.region = region
-        return self
-
-    def create_dict_params(self):
-        dict_params = {"symbol": self.symbol, "region": self.region}
-        return dict_params
 
 
 def test_when_region_br_and_symbol_valid_then_create_url():
@@ -86,66 +70,48 @@ def test_when_region_us_and_symbol_is_invalid_str_then_create_invalid_url():
     )
 
 
-class RequestsObj:
-    def __init__(self) -> None:
-        self.url = None
-        self.status_code = None
-
-    def url(self):
-        return self.url
-
-    def set_url(self, url):
-        self.url = url
-        return self
-
-    def status_code(self):
-        return self.status_code
-
-    def set_status_code(self, status_code):
-        self.status_code = status_code
-        return self
-
-
 @patch("func.src.service.requests.get")
-def test_when_requests_valid_url_then_return_requests_object(mock_requests_get):
-    url = "https://sigame-companies-logo.s3.sa-east-1.amazonaws.com/br/PETR.png"
-    mock_requests_get.return_value = (
-        RequestsObj().set_url(url).set_status_code(200)
-    )
-    requests_response = get_requests_object_from_url_path(url)
+def test_when_requests_valid_url_then_return_requests_object(mock_requests_get, url_valid):
+    mock_requests_get.return_value = (StubRequestsObj().set_url(url_valid).set_status_code(200))
+    requests_response = get_requests_object_from_url_path(url_valid)
+
     assert requests_response.status_code == 200
-    assert requests_response.url == url
+    assert requests_response.url == url_valid
 
 
 @patch("func.src.service.requests.get")
-def test_when_requests_invalid_url_then_return_requests_object(mock_get_requests_object):
-    url = "https://sigame-companies-logo.s3.sa-east-1.amazonaws.com/br/123123PETR.png"
-    mock_get_requests_object.return_value = (
-        RequestsObj().set_url(url).set_status_code(403)
-    )
-    requests_response = get_requests_object_from_url_path(url)
+def test_get_requests_object_is_called(mock_requests_get, url_valid):
+    get_requests_object_from_url_path(url_valid)
+
+    mock_requests_get.assert_called_once_with(url_valid)
+
+
+@patch("func.src.service.requests.get")
+def test_when_requests_invalid_url_then_return_requests_object(mock_get_requests_object, url_invalid):
+    mock_get_requests_object.return_value = StubRequestsObj().set_url(url_invalid).set_status_code(403)
+    requests_response = get_requests_object_from_url_path(url_invalid)
+
     assert requests_response.status_code == 403
-    assert requests_response.url == url
+    assert requests_response.url == url_invalid
 
 
-def test_when_200_status_code_then_response_true():
-    url = "https://sigame-companies-logo.s3.sa-east-1.amazonaws.com/br/PETR.png"
-    params = RequestsObj().set_status_code(200).set_url(url)
+def test_when_200_status_code_then_response_true(url_valid):
+    params = StubRequestsObj().set_status_code(200).set_url(url_valid)
     response = get_response_from_url_path(params)
+
     assert response["status"] is True
-    assert response["logo_uri"] == url
+    assert response["logo_uri"] == url_valid
 
 
-def test_when_403_status_code_then_response_true():
-    url = "https://sigame-companies-logo.s3.sa-east-1.amazonaws.com/br/123123PETR.png"
-    params = RequestsObj().set_status_code(403).set_url(url)
+def test_when_403_status_code_then_response_true(url_invalid):
+    params = StubRequestsObj().set_status_code(403).set_url(url_invalid)
     response = get_response_from_url_path(params)
+
     assert response["status"] is False
     assert response["logo_uri"] == ""
 
 
-def test_when_not_expected_status_code_then_response_raises():
-    url = "https://sigame-companies-logo.s3.sa-east-1.amazonaws.com/br/123123PETR.png"
-    params = RequestsObj().set_status_code(500).set_url(url)
+def test_when_not_expected_status_code_then_response_raises(url_invalid):
+    params = StubRequestsObj().set_status_code(500).set_url(url_invalid)
     with pytest.raises(Exception, match="Internal server error"):
         get_response_from_url_path(params)

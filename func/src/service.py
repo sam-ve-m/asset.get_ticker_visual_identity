@@ -1,8 +1,8 @@
 from decouple import config
 import requests
 
-from .validator import MandatoryParameters
 from .enum import RegionEnum, StatusCodeEnum
+from .validator import MandatoryParameters
 
 
 def create_ticker_url_path(params: dict) -> str:
@@ -31,9 +31,7 @@ def get_response_from_url_path(requests_response: object) -> dict:
     dic_response = {
         StatusCodeEnum.sucess.value: lambda: _response(True, requests_response.url),
         StatusCodeEnum.bad_request.value: lambda: _response(False, ""),
-        StatusCodeEnum.internal_server_error.value: lambda: _raise(
-            Exception("Internal server error")
-        ),
+        StatusCodeEnum.internal_server_error.value: lambda: _raise(Exception("Internal server error"))
     }
     lambda_response = dic_response.get(
         requests_response.status_code, StatusCodeEnum.internal_server_error.value

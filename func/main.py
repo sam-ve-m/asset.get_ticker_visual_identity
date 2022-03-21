@@ -15,8 +15,8 @@ def get_ticker_visual_identity():
             dumps(response), mimetype='application/json', status=200
         )
     except Exception as error:
-        message = {'message': 'Fission: get_ticker_visual_identity'}
+        message = 'Fission: get_ticker_visual_identity'
         Gladsheim.error(error, message)
         return Response(
-            dumps(message), mimetype='application/json', status=403
+            dumps(str(error)), mimetype='application/json', status=403
         )
