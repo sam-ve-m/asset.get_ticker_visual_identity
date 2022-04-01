@@ -1,9 +1,9 @@
-from .conftest import TickerDataBuilder, StubRequestsObj
 from func.src.service import (
     create_ticker_url_path,
     get_requests_object_from_url_path,
     get_response_from_url_path,
 )
+from .stubs import StubTicker, StubRequestsObj
 
 from pydantic import ValidationError
 from unittest.mock import patch
@@ -11,7 +11,7 @@ import pytest
 
 
 def test_when_region_br_and_symbol_valid_then_create_url():
-    params = TickerDataBuilder().set_symbol("PETRasd").set_region("br").create_dict_params()
+    params = StubTicker().set_symbol("PETRasd").set_region("br").create_dict_params()
     url_path = create_ticker_url_path(params)
     assert (
             url_path
@@ -20,7 +20,7 @@ def test_when_region_br_and_symbol_valid_then_create_url():
 
 
 def test_when_region_br_and_symbol_is_invalid_str_then_create_invalid_url():
-    params = TickerDataBuilder().set_symbol("asdPETR").set_region("br").create_dict_params()
+    params = StubTicker().set_symbol("asdPETR").set_region("br").create_dict_params()
     url_path = create_ticker_url_path(params)
     assert (
             url_path
@@ -29,31 +29,31 @@ def test_when_region_br_and_symbol_is_invalid_str_then_create_invalid_url():
 
 
 def test_when_region_and_symbol_not_str_then_return_exception():
-    params = TickerDataBuilder().set_symbol(123).set_region(1).create_dict_params()
+    params = StubTicker().set_symbol(123).set_region(1).create_dict_params()
     with pytest.raises(ValidationError):
         create_ticker_url_path(params)
 
 
 def test_when_region_not_str_then_return_exception():
-    params = TickerDataBuilder().set_symbol("PETR").set_region(1).create_dict_params()
+    params = StubTicker().set_symbol("PETR").set_region(1).create_dict_params()
     with pytest.raises(ValidationError):
         create_ticker_url_path(params)
 
 
 def test_when_region_not_enum_choices_then_return_exception():
-    params = TickerDataBuilder().set_symbol("PETR").set_region("par").create_dict_params()
+    params = StubTicker().set_symbol("PETR").set_region("par").create_dict_params()
     with pytest.raises(ValidationError):
         create_ticker_url_path(params)
 
 
 def test_when_symbol_not_str_then_return_exception():
-    params = TickerDataBuilder().set_symbol(123).set_region("br").create_dict_params()
+    params = StubTicker().set_symbol(123).set_region("br").create_dict_params()
     with pytest.raises(ValidationError):
         create_ticker_url_path(params)
 
 
 def test_when_region_us_and_symbol_valid_then_create_url():
-    params = TickerDataBuilder().set_symbol("AAPL").set_region("us").create_dict_params()
+    params = StubTicker().set_symbol("AAPL").set_region("us").create_dict_params()
     url_path = create_ticker_url_path(params)
     assert (
             url_path
@@ -62,7 +62,7 @@ def test_when_region_us_and_symbol_valid_then_create_url():
 
 
 def test_when_region_us_and_symbol_is_invalid_str_then_create_invalid_url():
-    params = TickerDataBuilder().set_symbol("AAPL123").set_region("us").create_dict_params()
+    params = StubTicker().set_symbol("AAPL123").set_region("us").create_dict_params()
     url_path = create_ticker_url_path(params)
     assert (
             url_path

@@ -6,12 +6,12 @@ from .validator import MandatoryParameters
 
 
 def create_ticker_url_path(params: dict) -> str:
-    params_dict = validate_url_params(params)
+    params_dict = _validate_url_params(params)
     url_path = f"https://{config('BASE_PATH_TICKER_VISUAL_IDENTITY')}/{params_dict['region']}/{params_dict['symbol']}.{config('VISUAL_IDENTITY_EXTENSION')}"
     return url_path
 
 
-def validate_url_params(params: dict) -> dict:
+def _validate_url_params(params: dict) -> dict:
     MandatoryParameters.validate_unpacking(params)
     if params["region"] == RegionEnum.br.value:
         ticker = params["symbol"]
@@ -29,7 +29,7 @@ def get_requests_object_from_url_path(url_path: str) -> object:
 
 def get_response_from_url_path(requests_response: object) -> dict:
     dic_response = {
-        StatusCodeEnum.sucess.value: lambda: _response(True, requests_response.url),
+        StatusCodeEnum.success.value: lambda: _response(True, requests_response.url),
         StatusCodeEnum.bad_request.value: lambda: _response(False, ""),
         StatusCodeEnum.internal_server_error.value: lambda: _raise(Exception("Internal server error"))
     }
