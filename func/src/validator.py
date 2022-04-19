@@ -1,6 +1,8 @@
-from pydantic import BaseModel, Extra, validator
-
+# Jormungandr
 from .enum import RegionEnum
+
+# Third party
+from pydantic import BaseModel, Extra, validator
 
 
 class MandatoryParameters(BaseModel, extra=Extra.forbid):
@@ -26,6 +28,6 @@ class MandatoryParameters(BaseModel, extra=Extra.forbid):
         return region
 
     @staticmethod
-    def validate_unpacking(json: dict) -> dict:
+    def unpacking_to_dict(json: dict) -> dict:
         params = MandatoryParameters(**json).dict()
         return params

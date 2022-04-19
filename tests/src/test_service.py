@@ -1,3 +1,4 @@
+# Jormungandr
 from func.src.service import (
     create_ticker_url_path,
     get_requests_object_from_url_path,
@@ -5,8 +6,11 @@ from func.src.service import (
 )
 from .stubs import StubTicker, StubRequestsObj
 
-from pydantic import ValidationError
+# Standards
 from unittest.mock import patch
+
+# Third party
+from pydantic import ValidationError
 import pytest
 
 

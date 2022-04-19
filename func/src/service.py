@@ -1,18 +1,30 @@
-from decouple import config
-import requests
-
-from .enum import RegionEnum, StatusCodeEnum
+# Jormungandr
+from .enum import RegionEnum, CodeResponse
 from .validator import MandatoryParameters
+
+# Standards
+from http import HTTPStatus
+
+# Third party
+from etria_logger import Gladsheim
+from decouple import config
+from requests.models import Response
+import requests
 
 
 def create_ticker_url_path(params: dict) -> str:
     params_dict = _validate_url_params(params)
-    url_path = f"https://{config('BASE_PATH_TICKER_VISUAL_IDENTITY')}/{params_dict['region']}/{params_dict['symbol']}.{config('VISUAL_IDENTITY_EXTENSION')}"
-    return url_path
+    try:
+        url_path = f"https://{config('BASE_PATH_TICKER_VISUAL_IDENTITY')}/{params_dict['region']}/{params_dict['symbol']}.{config('VISUAL_IDENTITY_EXTENSION')}"
+        return url_path
+    except Exception as ex:
+        message = f'Jormungandr::get_ticker_visual_identity::create_ticker_url_path:: error to get .env params'
+        Gladsheim.error(error=ex, message=message)
+        raise ex
 
 
 def _validate_url_params(params: dict) -> dict:
-    MandatoryParameters.validate_unpacking(params)
+    MandatoryParameters.unpacking_to_dict(params)
     if params["region"] == RegionEnum.br.value:
         ticker = params["symbol"]
         ticker_slice_index = int(config("TICKER_SLICE_INDEX"))
@@ -22,28 +34,43 @@ def _validate_url_params(params: dict) -> dict:
     return params
 
 
-def get_requests_object_from_url_path(url_path: str) -> object:
-    requests_response = requests.get(url_path)
-    return requests_response
+def get_requests_object_from_url_path(url_path: str) -> Response:
+    try:
+        requests_response = requests.get(url_path)
+        return requests_response
+    except Exception as ex:
+        message = f'Jormungandr::get_ticker_visual_identity::get_requests_object_from_url_path:: error requesting in {url_path}'
+        Gladsheim.error(error=ex, message=message)
+        raise ex
 
 
-def get_response_from_url_path(requests_response: object) -> dict:
-    dic_response = {
-        StatusCodeEnum.success.value: lambda: _response(True, requests_response.url),
-        StatusCodeEnum.bad_request.value: lambda: _response(False, ""),
-        StatusCodeEnum.internal_server_error.value: lambda: _raise(Exception("Internal server error"))
+def get_response_from_url_path(requests_response: Response) -> dict:
+    message = 'there is no logo for the symbol informed'
+    responses = {
+        HTTPStatus.OK.value: lambda: _response(success=True, url_path=requests_response.url, code=CodeResponse.SUCCESS.value),
+        HTTPStatus.FORBIDDEN.value: lambda: _response(success=True, url_path="", code=CodeResponse.INVALID_PARAMS.value, message=message),
+        HTTPStatus.INTERNAL_SERVER_ERROR.value: lambda: _raise(Exception("unexpected error occurred"))
     }
-    lambda_response = dic_response.get(
-        requests_response.status_code, StatusCodeEnum.internal_server_error.value
+    
+    lambda_response = responses.get(
+        requests_response.status_code, HTTPStatus.INTERNAL_SERVER_ERROR.value
     )
     response = lambda_response()
     return response
 
 
-def _response(status: bool, url_path: str) -> dict:
+def _response(success: bool, code: int, url_path: str = None, message: str = None) -> dict:
+    if not message:
+        response = {
+            "result": {"logo_uri": url_path},
+            "success": success,
+            "code": code
+        }
+        return response
     response = {
-        "status": status,
-        "logo_uri": url_path,
+        "message": message,
+        "success": success,
+        "code": code
     }
     return response
 
