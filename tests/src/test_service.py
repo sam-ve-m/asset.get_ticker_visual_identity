@@ -1,3 +1,4 @@
+# Jormungandr
 from func.src.service import (
     create_ticker_url_path,
     get_requests_object_from_url_path,
@@ -5,8 +6,11 @@ from func.src.service import (
 )
 from .stubs import StubTicker, StubRequestsObj
 
-from pydantic import ValidationError
+# Standards
 from unittest.mock import patch
+
+# Third party
+from pydantic import ValidationError
 import pytest
 
 
@@ -80,7 +84,7 @@ def test_when_requests_valid_url_then_return_requests_object(mock_requests_get, 
 
 
 @patch("func.src.service.requests.get")
-def test_get_requests_object_is_called(mock_requests_get, url_valid):
+def test_when_function_is_called_then_requests_get_has_called(mock_requests_get, url_valid):
     get_requests_object_from_url_path(url_valid)
 
     mock_requests_get.assert_called_once_with(url_valid)
@@ -99,19 +103,25 @@ def test_when_200_status_code_then_response_true(url_valid):
     params = StubRequestsObj().set_status_code(200).set_url(url_valid)
     response = get_response_from_url_path(params)
 
-    assert response["status"] is True
-    assert response["logo_uri"] == url_valid
+    assert response["success"] is True
+    assert response['result']["logo_uri"] == url_valid
 
 
 def test_when_403_status_code_then_response_true(url_invalid):
     params = StubRequestsObj().set_status_code(403).set_url(url_invalid)
     response = get_response_from_url_path(params)
 
-    assert response["status"] is False
-    assert response["logo_uri"] == ""
+    assert response["success"] is True
+    assert response['result']["logo_uri"] is None
+
+
+def test_when_500_status_code_then_response_raises(url_invalid):
+    params = StubRequestsObj().set_status_code(500).set_url(url_invalid)
+    with pytest.raises(Exception, match="unexpected error occurred"):
+        get_response_from_url_path(params)
 
 
 def test_when_not_expected_status_code_then_response_raises(url_invalid):
-    params = StubRequestsObj().set_status_code(500).set_url(url_invalid)
-    with pytest.raises(Exception, match="Internal server error"):
+    params = StubRequestsObj().set_status_code(301).set_url(url_invalid)
+    with pytest.raises(Exception, match="unexpected error occurred"):
         get_response_from_url_path(params)
