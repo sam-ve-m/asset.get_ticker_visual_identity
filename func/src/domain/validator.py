@@ -1,13 +1,14 @@
 # Jormungandr
-from .enum import RegionEnum
+from .enum import RegionEnum, ImageType
 
 # Third party
 from pydantic import BaseModel, Extra, validator
 
 
-class MandatoryParameters(BaseModel, extra=Extra.forbid):
+class TickerModel(BaseModel, extra=Extra.forbid):
     symbol: str
     region: RegionEnum
+    type: ImageType
 
     @validator("symbol")
     def is_empty(symbol: str) -> str:
@@ -20,14 +21,3 @@ class MandatoryParameters(BaseModel, extra=Extra.forbid):
         if symbol.isnumeric():
             raise ValueError("Wrong format type")
         return symbol
-
-    @validator("region")
-    def is_numeric(region: str) -> RegionEnum:
-        if not region.isalpha():
-            raise ValueError("Wrong format type")
-        return region
-
-    @staticmethod
-    def unpacking_to_dict(json: dict) -> dict:
-        params = MandatoryParameters(**json).dict()
-        return params

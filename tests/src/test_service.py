@@ -1,10 +1,5 @@
 # Jormungandr
-from func.src.service import (
-    create_ticker_url_path,
-    get_requests_object_from_url_path,
-    get_response_from_url_path,
-)
-from .stubs import StubTicker, StubRequestsObj
+from tests.src.stubs import StubTicker, stub_path
 
 # Standards
 from unittest.mock import patch
@@ -14,13 +9,14 @@ from pydantic import ValidationError
 import pytest
 
 
-def test_when_region_br_and_symbol_valid_then_create_url():
-    params = StubTicker().set_symbol("PETRasd").set_region("br").create_dict_params()
-    url_path = create_ticker_url_path(params)
-    assert (
-            url_path
-            == "https://sigame-companies-logo.s3.sa-east-1.amazonaws.com/br/PETR.png"
-    )
+@patch('func.src.service.S3Repository.generate_ticker_url', return_value=stub_path)
+@patch('func.src.service.S3Repository.get_ticker', return_value=True)
+def test_when_region_br_symbol_and_type_valid_then_create_url(mock_s3_get_ticker, mock_generate_ticket, instance_ticker_visual_identity):
+    result = instance_ticker_visual_identity.get_url_ticker()
+    assert isinstance(result, dict)
+    assert "logo_url" in result
+    assert result["logo_url"] == 'url.inteira.com.br'
+
 
 
 def test_when_region_br_and_symbol_is_invalid_str_then_create_invalid_url():

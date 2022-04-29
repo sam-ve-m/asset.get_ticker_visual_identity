@@ -1,58 +1,70 @@
 # Jormungandr
-from src import service
-from src.enum import CodeResponse
+from src.domain.exception import TickerNotFound
+from src.service import TickerVisualIdentityService
+from src.domain.enum import CodeResponse
+from src.domain.validator import TickerModel
+from src.domain.response.model import ResponseModel
 
 # Standards
 from http import HTTPStatus
-from json import dumps
 
 # Third party
 from etria_logger import Gladsheim
 from flask import request, Response
 
 
-def get_ticker_visual_identity() -> dict:
+def get_ticker_visual_identity() -> Response:
     message = "Jormungandr::get_ticker_visual_identity"
+    json_params = request.get_json()
     try:
-        params = request.json
-        url_path = service.create_ticker_url_path(params)
-        requests_obj = service.get_requests_object_from_url_path(url_path)
-        service_response = service.get_response_from_url_path(requests_obj)
-        response = Response(
-            dumps(service_response),
-            mimetype="application/json",
-            status=HTTPStatus.OK.value,
+        validated_params = TickerModel(**json_params).dict()
+        ticker_visual_identity_service = TickerVisualIdentityService(params=validated_params)
+        result = ticker_visual_identity_service.get_url_ticker()
+        response_model = ResponseModel.build_response(
+            result=result,
+            success=True,
+            code=CodeResponse.SUCCESS
+            )
+        response = ResponseModel.build_http_response(
+            response_model=response_model,
+            status=HTTPStatus.OK)
+        return response
+
+    except TickerNotFound as ex:
+        response_model = ResponseModel.build_response(
+            success=True,
+            message=ex.msg,
+            code=CodeResponse.DATA_NOT_FOUND
         )
+        response = ResponseModel.build_http_response(
+            response_model=response_model,
+            status=HTTPStatus.NOT_FOUND
+            )
         return response
 
     except ValueError as ex:
-        Gladsheim.error(ex=ex, message=f'{message}::There are invalid format or extra parameters')
-        response = Response(
-            dumps(
-                {
-                    "result": None,
-                    "message": "There are invalid format or extra parameters",
-                    "success": False,
-                    "code": CodeResponse.INVALID_PARAMS.value,
-                }
-            ),
-            mimetype="application/json",
-            status=HTTPStatus.BAD_REQUEST.value,
+        Gladsheim.error(ex=ex, message=f'{message}::There are invalid format'
+                                       'or extra/missing parameters')
+        response_model = ResponseModel.build_response(
+            success=False,
+            code=CodeResponse.INVALID_PARAMS,
+            message="There are invalid format or extra/missing parameters",
+        )
+        response = ResponseModel.build_http_response(
+            response_model=response_model,
+            status=HTTPStatus.BAD_REQUEST
         )
         return response
 
     except Exception as ex:
-        Gladsheim.error(ex=ex, message=f'{message}::{str(ex)}')
-        response = Response(
-            dumps(
-                {
-                    "result": None,
-                    "message": "Unexpected error occurred",
-                    "success": False,
-                    "code": CodeResponse.INTERNAL_SERVER_ERROR.value,
-                }
-            ),
-            mimetype="application/json",
-            status=HTTPStatus.INTERNAL_SERVER_ERROR.value,
+        Gladsheim.error(error=ex, message=f"{message}::{str(ex)}")
+        response_model = ResponseModel.build_response(
+            success=False,
+            code=CodeResponse.INTERNAL_SERVER_ERROR,
+            message="Unexpected error occurred",
+        )
+        response = ResponseModel.build_http_response(
+            response_model=response_model,
+            status=HTTPStatus.INTERNAL_SERVER_ERROR
         )
         return response
