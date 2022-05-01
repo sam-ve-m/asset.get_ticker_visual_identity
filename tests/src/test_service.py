@@ -12,7 +12,7 @@ import pytest
 @patch('func.src.service.S3Repository.generate_ticker_url', return_value=stub_path)
 @patch('func.src.service.S3Repository.get_ticker', return_value=True)
 def test_when_region_br_symbol_and_type_valid_then_create_url(mock_s3_get_ticker, mock_generate_ticket, instance_ticker_visual_identity):
-    result = instance_ticker_visual_identity.get_url_ticker()
+    result = instance_ticker_visual_identity.get_ticker_url()
     assert isinstance(result, dict)
     assert "logo_url" in result
     assert result["logo_url"] == 'url.inteira.com.br'

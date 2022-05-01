@@ -1,7 +1,7 @@
 # Third party
+from boto3 import resource
 from decouple import config
 from etria_logger import Gladsheim
-import boto3
 
 
 class S3Infrastructure:
@@ -9,7 +9,7 @@ class S3Infrastructure:
     @staticmethod
     def get_resource():
         try:
-            s3_resource = boto3.resource(
+            s3_resource = resource(
                 "s3",
                 aws_access_key_id=config("AWS_ACCESS_KEY_ID"),
                 aws_secret_access_key=config("AWS_SECRET_ACCESS_KEY"),

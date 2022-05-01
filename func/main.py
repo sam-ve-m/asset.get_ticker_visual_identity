@@ -19,7 +19,7 @@ def get_ticker_visual_identity() -> Response:
     try:
         validated_params = TickerModel(**json_params).dict()
         ticker_visual_identity_service = TickerVisualIdentityService(params=validated_params)
-        result = ticker_visual_identity_service.get_url_ticker()
+        result = ticker_visual_identity_service.get_ticker_url()
         response_model = ResponseModel.build_response(
             result=result,
             success=True,
