@@ -14,3 +14,6 @@ class StubTicker:
 
 
 stub_path = 'url.inteira.com.br'
+stub_path_encoded = stub_path.encode()
+stub_params_type_invalid = StubTicker(region='br', symbol='AAPL', type='abcd').create_dict_params()
+stub_params_region_invalid = StubTicker(region='pr', symbol='AAPL', type='logo').create_dict_params()

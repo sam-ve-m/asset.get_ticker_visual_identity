@@ -4,7 +4,6 @@ from .domain.exception import TickerNotFound
 from .repositories.s3 import S3Repository
 from .repositories.redis import RedisRepository
 
-
 # Third party
 from etria_logger import Gladsheim
 from decouple import config

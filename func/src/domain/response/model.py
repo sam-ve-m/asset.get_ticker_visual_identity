@@ -1,6 +1,6 @@
 # Jormungandr
-from src.domain.enum import CodeResponse
-
+# from .domain.enum import CodeResponse
+from ..enum import CodeResponse
 
 # Standards
 from json import dumps
