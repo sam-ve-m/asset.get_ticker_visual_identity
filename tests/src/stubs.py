@@ -1,36 +1,19 @@
 class StubTicker:
-    def __init__(self, symbol=None, region=None):
-        self.symbol = symbol or None
-        self.region = region or None
-
-    def set_symbol(self, symbol: str):
+    def __init__(self, symbol=None, region=None, type=None):
         self.symbol = symbol
-        return self
-
-    def set_region(self, region: str):
         self.region = region
-        return self
+        self.type = type
 
     def create_dict_params(self):
-        dict_params = {"symbol": self.symbol, "region": self.region}
+        dict_params = {
+            "symbol": self.symbol,
+            "region": self.region,
+            "type": self.type,
+            }
         return dict_params
 
 
-class StubRequestsObj:
-    def __init__(self) -> None:
-        self.url = None
-        self.status_code = None
-
-    def url(self):
-        return self.url
-
-    def set_url(self, url):
-        self.url = url
-        return self
-
-    def status_code(self):
-        return self.status_code
-
-    def set_status_code(self, status_code):
-        self.status_code = status_code
-        return self
+stub_path = 'url.inteira.com.br'
+stub_path_encoded = stub_path.encode()
+stub_params_type_invalid = StubTicker(region='br', symbol='AAPL', type='abcd').create_dict_params()
+stub_params_region_invalid = StubTicker(region='pr', symbol='AAPL', type='logo').create_dict_params()

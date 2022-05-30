@@ -1,73 +1,56 @@
 # Jormungandr
-from .enum import RegionEnum, CodeResponse
-from .validator import MandatoryParameters
-
-# Standards
-from http import HTTPStatus
+from .domain.enum import RegionEnum
+from .domain.exception import TickerNotFound
+from .repositories.s3 import S3Repository
+from .repositories.redis import RedisRepository
 
 # Third party
 from etria_logger import Gladsheim
 from decouple import config
-from requests.models import Response
-import requests
 
 
-def create_ticker_url_path(params: dict) -> str:
-    params_dict = __validate_url_params(params)
-    try:
-        url_path = f"https://{config('BASE_PATH_TICKER_VISUAL_IDENTITY')}/{params_dict['region']}/{params_dict['symbol']}.{config('VISUAL_IDENTITY_EXTENSION')}"
-        return url_path
-    except Exception as ex:
-        message = f'Jormungandr::get_ticker_visual_identity::create_ticker_url_path:: error to get .env params'
-        Gladsheim.error(error=ex, message=message)
-        raise ex
+class TickerVisualIdentityService:
+    def __init__(self, params):
+        self.params = params
 
+    def get_ticker_url(self) -> dict:
+        self._treatment_ticker_symbol()
+        ticker_path = self._ticker_path_by_type()
+        ticker_url_access = TickerVisualIdentityService._get_or_set_ticker_url_access(ticker_path=ticker_path)
+        ticker_type = self.params["type"]
+        result = {"url": ticker_url_access, "type": ticker_type}
+        return result
 
-def __validate_url_params(params: dict) -> dict:
-    MandatoryParameters.unpacking_to_dict(params)
-    if params["region"] == RegionEnum.br.value:
-        ticker = params["symbol"]
-        ticker_slice_index = int(config("TICKER_SLICE_INDEX"))
-        ticker_without_suffix_number = ticker[:ticker_slice_index]
-        params.update(symbol=ticker_without_suffix_number)
-        return params
-    return params
-
-
-def get_requests_object_from_url_path(url_path: str) -> Response:
-    try:
-        requests_obj = requests.get(url_path)
-        return requests_obj
-    except Exception as ex:
-        message = f'Jormungandr::get_ticker_visual_identity::get_requests_object_from_url_path:: error requesting in {url_path}'
-        Gladsheim.error(error=ex, message=message)
-        raise ex
-
-
-def get_response_from_url_path(requests_obj: Response) -> dict:
-    message = 'There is no logo for the informed symbol and/or region'
-    responses = {
-        HTTPStatus.OK.value: lambda: __response(success=True, url_path=requests_obj.url, code=CodeResponse.SUCCESS.value),
-        HTTPStatus.FORBIDDEN.value: lambda: __response(success=True, code=CodeResponse.DATA_NOT_FOUND.value, message=message),
-        HTTPStatus.INTERNAL_SERVER_ERROR.value: lambda: __raise(Exception("unexpected error occurred"))
-    }
-    
-    lambda_response = responses.get(
-        requests_obj.status_code, responses.get(HTTPStatus.INTERNAL_SERVER_ERROR.value)
-    )
-    response = lambda_response()
-    return response
-
-
-def __response(success: bool, code: int, url_path: str = None, message: str = None) -> dict:
-    response = {
-            "result": {"logo_uri": url_path},
-            "message": message,
-            "success": success,
-            "code": code
+    def _ticker_path_by_type(self) -> str:
+        region = self.params["region"]
+        ticker_type = self.params["type"]
+        symbol = self.params["symbol"]
+        url_per_type = {
+            "logo": f'{region}/{symbol}/{ticker_type}.{config("LOGO_EXTENSION")}',
+            "banner": f'{region}/{symbol}/{ticker_type}.{config("BANNER_EXTENSION")}',
+            "thumbnail": f'{region}/{symbol}/{ticker_type}.{config("THUMBNAIL_EXTENSION")}',
         }
-    return response
+        url_path = url_per_type.get(ticker_type, None)
+        return url_path
 
+    def _treatment_ticker_symbol(self):
+        region = self.params["region"]
+        if region == RegionEnum.br.value:
+            ticker = self.params["symbol"]
+            ticker_slice_index = int(config("TICKER_SLICE_INDEX"))
+            ticker_without_suffix_number = ticker[:ticker_slice_index]
+            self.params.update(symbol=ticker_without_suffix_number)
 
-def __raise(exception: Exception):
-    raise exception
+    @staticmethod
+    def _get_or_set_ticker_url_access(ticker_path) -> str:
+        result = RedisRepository.get(ticker_path)
+        if result:
+            ticker_url_access = result.decode()
+            return ticker_url_access
+        ticker_exist = S3Repository.get_ticker(ticker_path=ticker_path)
+        if ticker_exist:
+            ticker_url_access = S3Repository.generate_ticker_url(ticker_path=ticker_path)
+            RedisRepository.set(key=ticker_path, value=ticker_url_access)
+            return ticker_url_access
+        Gladsheim.error(message=f"No images found for this ticker path::{ticker_path}")
+        raise TickerNotFound
