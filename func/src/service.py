@@ -18,7 +18,7 @@ class TickerVisualIdentityService:
         ticker_path = self._ticker_path_by_type()
         ticker_url_access = TickerVisualIdentityService._get_or_set_ticker_url_access(ticker_path=ticker_path)
         ticker_type = self.params["type"]
-        result = {f"{ticker_type}_url": ticker_url_access}
+        result = {"url": ticker_url_access, "type": ticker_type}
         return result
 
     def _ticker_path_by_type(self) -> str:

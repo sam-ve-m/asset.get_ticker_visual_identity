@@ -17,16 +17,20 @@ import pytest
 def test_when_region_and_symbol_and_type_valid_then_create_url(mock_redis_get, mock_s3_get, mock_generate_ticket, mock_redis_set, instance_ticker_visual_identity):
     result = instance_ticker_visual_identity.get_ticker_url()
     assert isinstance(result, dict)
-    assert "logo_url" in result
-    assert result["logo_url"] == 'url.inteira.com.br'
+    assert "url" in result
+    assert "type" in result
+    assert result["url"] == 'url.inteira.com.br'
+    assert result['type'] == "logo"
 
 
 @patch('func.src.service.RedisRepository.get', return_value=stub_path_encoded)
 def test_when_url_key_already_exist_in_redis_then_get_url(mock_redis_get, instance_ticker_visual_identity):
     result = instance_ticker_visual_identity.get_ticker_url()
     assert isinstance(result, dict)
-    assert "logo_url" in result
-    assert result["logo_url"] == 'url.inteira.com.br'
+    assert "url" in result
+    assert "type" in result
+    assert result["url"] == 'url.inteira.com.br'
+    assert result['type'] == "logo"
 
 
 @patch('func.src.service.S3Repository.get_ticker', return_value=False)

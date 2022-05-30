@@ -13,7 +13,6 @@ class RedisInfrastructure:
             try:
                 url = config("REDIS_HOST")
                 cls.redis = from_url(url, max_connections=10)
-                return cls.redis
             except Exception as ex:
                 Gladsheim.error(
                     error=ex,
