@@ -26,9 +26,9 @@ class TickerVisualIdentityService:
         ticker_type = self.params["type"]
         symbol = self.params["symbol"]
         url_per_type = {
-            "logo": f'{region}/{symbol}/{ticker_type}.{config("LOGO_EXTENSION")}',
-            "banner": f'{region}/{symbol}/{ticker_type}.{config("BANNER_EXTENSION")}',
-            "thumbnail": f'{region}/{symbol}/{ticker_type}.{config("THUMBNAIL_EXTENSION")}',
+            "logo": f'{config("INITIAL_PATH")}/{region}/{symbol}/{ticker_type}.{config("LOGO_EXTENSION")}',
+            "banner": f'{config("INITIAL_PATH")}/{region}/{symbol}/{ticker_type}.{config("BANNER_EXTENSION")}',
+            "thumbnail": f'{config("INITIAL_PATH")}/{region}/{symbol}/{ticker_type}.{config("THUMBNAIL_EXTENSION")}',
         }
         url_path = url_per_type.get(ticker_type, None)
         return url_path
