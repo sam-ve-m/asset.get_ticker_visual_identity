@@ -1,0 +1,55 @@
+include:
+- ./func/*
+kind: ArchiveUploadSpec
+name: func-bOJr
+
+---
+apiVersion: fission.io/v1
+kind: Package
+metadata:
+  creationTimestamp: null
+  name: ticker-visual-fn-336685ab-2a57-48c9-925a-0bd53844518c
+  namespace: default
+spec:
+  deployment:
+    checksum: {}
+  environment:
+    name: get-ticker-env
+    namespace: default
+  source:
+    checksum: {}
+    type: url
+    url: archive://func-bOJr
+status:
+  buildstatus: pending
+  lastUpdateTimestamp: "2022-06-28T21:05:53Z"
+
+---
+apiVersion: fission.io/v1
+kind: Function
+metadata:
+  creationTimestamp: null
+  name: ticker-visual-fn
+  namespace: default
+spec:
+  InvokeStrategy:
+    ExecutionStrategy:
+      ExecutorType: poolmgr
+      MaxScale: 0
+      MinScale: 0
+      SpecializationTimeout: 120
+      TargetCPUPercent: 0
+    StrategyType: execution
+  concurrency: 500
+  environment:
+    name: get-ticker-env
+    namespace: default
+  functionTimeout: 60
+  idletimeout: 120
+  package:
+    functionName: main.get_ticker_visual_identity
+    packageref:
+      name: ticker-visual-fn-336685ab-2a57-48c9-925a-0bd53844518c
+      namespace: default
+  requestsPerPod: 1
+  resources: {}
