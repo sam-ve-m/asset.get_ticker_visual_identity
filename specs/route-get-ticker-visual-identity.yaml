@@ -2,7 +2,7 @@ apiVersion: fission.io/v1
 kind: HTTPTrigger
 metadata:
   creationTimestamp: null
-  name: 9e3466c4-7609-487d-a69d-6cabd53a4c16
+  name: get-ticker-visual-identity
   namespace: default
 spec:
   createingress: false

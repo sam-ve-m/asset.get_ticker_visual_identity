@@ -1,5 +1,5 @@
 # Jormungandr
-from .enum import RegionEnum, ImageType
+from .enums import RegionEnum, ImageType
 
 # Third party
 from pydantic import BaseModel, Extra, validator

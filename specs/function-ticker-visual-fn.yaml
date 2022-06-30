@@ -1,14 +1,14 @@
 include:
 - ./func/*
 kind: ArchiveUploadSpec
-name: func-bOJr
+name: func-eLgG
 
 ---
 apiVersion: fission.io/v1
 kind: Package
 metadata:
   creationTimestamp: null
-  name: ticker-visual-fn-336685ab-2a57-48c9-925a-0bd53844518c
+  name: ticker-visual-fn-8166d491-f7d3-404e-9c78-e9eff3899a87
   namespace: default
 spec:
   deployment:
@@ -19,10 +19,10 @@ spec:
   source:
     checksum: {}
     type: url
-    url: archive://func-bOJr
+    url: archive://func-eLgG
 status:
   buildstatus: pending
-  lastUpdateTimestamp: "2022-06-28T21:05:53Z"
+  lastUpdateTimestamp: "2022-06-30T20:29:41Z"
 
 ---
 apiVersion: fission.io/v1
@@ -49,7 +49,7 @@ spec:
   package:
     functionName: main.get_ticker_visual_identity
     packageref:
-      name: ticker-visual-fn-336685ab-2a57-48c9-925a-0bd53844518c
+      name: ticker-visual-fn-8166d491-f7d3-404e-9c78-e9eff3899a87
       namespace: default
   requestsPerPod: 1
   resources: {}

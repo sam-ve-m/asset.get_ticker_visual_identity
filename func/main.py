@@ -1,7 +1,7 @@
 # Jormungandr
 from src.domain.exception import TickerNotFound
 from src.service import TickerVisualIdentityService
-from src.domain.enum import CodeResponse
+from src.domain.enums import InternalCode
 from src.domain.validator import TickerModel
 from src.domain.response.model import ResponseModel
 
@@ -14,57 +14,46 @@ from flask import request, Response
 
 
 def get_ticker_visual_identity() -> Response:
-    message = "Jormungandr::get_ticker_visual_identity"
     json_params = request.get_json()
     try:
         validated_params = TickerModel(**json_params).dict()
         ticker_visual_identity_service = TickerVisualIdentityService(params=validated_params)
         result = ticker_visual_identity_service.get_ticker_url()
-        response_model = ResponseModel.build_response(
+        response = ResponseModel(
             result=result,
             success=True,
-            code=CodeResponse.SUCCESS
-            )
-        response = ResponseModel.build_http_response(
-            response_model=response_model,
-            status=HTTPStatus.OK)
+            code=InternalCode.SUCCESS
+        ).build_http_response(status=HTTPStatus.OK)
         return response
 
     except TickerNotFound as ex:
-        response_model = ResponseModel.build_response(
+        result = {
+            "url": None,
+            "type": None
+        }
+        response = ResponseModel(
+            result=result,
             success=True,
             message=ex.msg,
-            code=CodeResponse.DATA_NOT_FOUND
-        )
-        response = ResponseModel.build_http_response(
-            response_model=response_model,
-            status=HTTPStatus.OK
-            )
+            code=InternalCode.DATA_NOT_FOUND
+        ).build_http_response(status=HTTPStatus.OK)
         return response
 
     except ValueError as ex:
-        Gladsheim.error(ex=ex, message=f'{message}::There are invalid format'
+        Gladsheim.error(ex=ex, message=f'Jormungandr::validator::There are invalid format'
                                        'or extra/missing parameters')
-        response_model = ResponseModel.build_response(
+        response = ResponseModel(
             success=False,
-            code=CodeResponse.INVALID_PARAMS,
+            code=InternalCode.INVALID_PARAMS,
             message="There are invalid format or extra/missing parameters",
-        )
-        response = ResponseModel.build_http_response(
-            response_model=response_model,
-            status=HTTPStatus.BAD_REQUEST
-        )
+        ).build_http_response(status=HTTPStatus.BAD_REQUEST)
         return response
 
     except Exception as ex:
-        Gladsheim.error(error=ex, message=f"{message}::{str(ex)}")
-        response_model = ResponseModel.build_response(
+        Gladsheim.error(error=ex, message=f"Jormungandr::get_ticker_visual_identity::{str(ex)}")
+        response = ResponseModel(
             success=False,
-            code=CodeResponse.INTERNAL_SERVER_ERROR,
+            code=InternalCode.INTERNAL_SERVER_ERROR,
             message="Unexpected error occurred",
-        )
-        response = ResponseModel.build_http_response(
-            response_model=response_model,
-            status=HTTPStatus.INTERNAL_SERVER_ERROR
-        )
+        ).build_http_response(status=HTTPStatus.INTERNAL_SERVER_ERROR)
         return response

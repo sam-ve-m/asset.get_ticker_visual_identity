@@ -1,5 +1,5 @@
 # Jormungandr
-from .domain.enum import RegionEnum
+from .domain.enums import RegionEnum
 from .domain.exception import TickerNotFound
 from .repositories.s3 import S3Repository
 from .repositories.redis import RedisRepository
@@ -35,7 +35,7 @@ class TickerVisualIdentityService:
 
     def _treatment_ticker_symbol(self):
         region = self.params["region"]
-        if region == RegionEnum.BR.value:
+        if region == RegionEnum.BR:
             ticker = self.params["symbol"]
             ticker_slice_index = int(config("TICKER_SLICE_INDEX"))
             ticker_without_suffix_number = ticker[:ticker_slice_index]

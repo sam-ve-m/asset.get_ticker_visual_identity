@@ -3,5 +3,5 @@
 # Do not edit the UID below: that will break 'fission spec apply'
 apiVersion: fission.io/v1
 kind: DeploymentConfig
-name: get-ticker-visual-identity
-uid: 88d864bb-c497-43d5-87ce-1c499b55461b
+name: asset-get-ticker-visual-identity
+uid: 5d800c83-c5d4-41f4-9f83-6e1e0c505713
