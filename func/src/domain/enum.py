@@ -16,5 +16,5 @@ class ImageType(str, Enum):
 
 
 class RegionEnum(str, Enum):
-    br = "BR"
-    us = "US"
+    BR = "BR"
+    US = "US"

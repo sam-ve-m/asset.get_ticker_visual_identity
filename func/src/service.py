@@ -35,7 +35,7 @@ class TickerVisualIdentityService:
 
     def _treatment_ticker_symbol(self):
         region = self.params["region"]
-        if region == RegionEnum.br.value:
+        if region == RegionEnum.BR.value:
             ticker = self.params["symbol"]
             ticker_slice_index = int(config("TICKER_SLICE_INDEX"))
             ticker_without_suffix_number = ticker[:ticker_slice_index]
