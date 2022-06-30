@@ -38,7 +38,7 @@ def get_ticker_visual_identity() -> Response:
         )
         response = ResponseModel.build_http_response(
             response_model=response_model,
-            status=HTTPStatus.NOT_FOUND
+            status=HTTPStatus.OK
             )
         return response
 
