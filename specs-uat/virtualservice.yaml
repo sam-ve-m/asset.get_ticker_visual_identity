@@ -7,7 +7,7 @@ spec:
   hosts:
     - hom.api.siga.me
   gateways:
-    - hom-istio-gateway
+    - homolog/hom-istio-gateway
   http:
   - match:
     - uri:
