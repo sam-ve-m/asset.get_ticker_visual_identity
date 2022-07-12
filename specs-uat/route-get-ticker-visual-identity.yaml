@@ -1,0 +1,23 @@
+apiVersion: fission.io/v1
+kind: HTTPTrigger
+metadata:
+  creationTimestamp: null
+  name: get-ticker-visual-identity
+  namespace: default
+spec:
+  createingress: false
+  functionref:
+    functionweights: null
+    name: ticker-visual-fn
+    type: name
+  host: ""
+  ingressconfig:
+    annotations: null
+    host: '*'
+    path: /get-ticker-visual-identity
+    tls: ""
+  method: ""
+  methods:
+  - GET
+  prefix: ""
+  relativeurl: /get-ticker-visual-identity
