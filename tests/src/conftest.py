@@ -1,5 +1,5 @@
 # Jormungandr
-from func.src.service import TickerVisualIdentityService
+from func.src.services.ticker import TickerVisualIdentityService
 from tests.src.stubs import StubTicker
 
 # Third party

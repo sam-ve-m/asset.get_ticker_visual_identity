@@ -1,8 +1,8 @@
 # Jormungandr
-from .domain.enums import RegionEnum
-from .domain.exception import TickerNotFound
-from .repositories.s3 import S3Repository
-from .repositories.redis import RedisRepository
+from func.src.domain.enums import RegionEnum
+from func.src.domain.exception import TickerNotFound
+from func.src.repositories.s3 import S3Repository
+from func.src.repositories.redis import RedisRepository
 
 # Third party
 from etria_logger import Gladsheim

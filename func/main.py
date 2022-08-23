@@ -1,6 +1,6 @@
 # Jormungandr
 from src.domain.exception import TickerNotFound
-from src.service import TickerVisualIdentityService
+from func.src.services.ticker import TickerVisualIdentityService
 from src.domain.enums import InternalCode
 from src.domain.validator import TickerModel
 from src.domain.response.model import ResponseModel
@@ -14,9 +14,10 @@ from flask import request, Response
 
 
 def get_ticker_visual_identity() -> Response:
-    json_params = request.get_json()
+
     try:
-        validated_params = TickerModel(**json_params).dict()
+        json_params = request.get_json()
+        validated_params = TickerModel(**json_params)
         ticker_visual_identity_service = TickerVisualIdentityService(params=validated_params)
         result = ticker_visual_identity_service.get_ticker_url()
         response = ResponseModel(

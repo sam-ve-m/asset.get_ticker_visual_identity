@@ -1,5 +1,5 @@
 # Jormungandr
-from ..infrastrucutres.s3 import S3Infrastructure
+from func.src.infrastrucutres.s3 import S3Infrastructure
 
 # Standards
 from typing import List
