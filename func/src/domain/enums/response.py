@@ -1,5 +1,5 @@
 # Standards
-from enum import Enum, IntEnum
+from enum import IntEnum
 from strenum import StrEnum
 
 

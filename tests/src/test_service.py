@@ -1,6 +1,6 @@
 # Jormungandr
-from func.src.domain.exception import TickerNotFound
-from func.src.domain.validator import TickerModel
+from func.src.domain.exceptions.exception import TickerNotFound
+from func.src.domain.validators.validator import TickerModel
 from tests.src.stubs import stub_path, stub_path_encoded, stub_params_type_invalid, stub_params_region_invalid
 
 # Standards
