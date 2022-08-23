@@ -1,13 +1,13 @@
 # Jormungandr
-from func.src.domain.enums import RegionEnum, ImageType
+from func.src.domain.enums.response import Region, ImageType
 
 # Third party
 from pydantic import BaseModel, Extra, validator
 
 
-class TickerModel(BaseModel, extra=Extra.forbid):
+class Ticker(BaseModel, extra=Extra.forbid):
     symbol: str
-    region: RegionEnum
+    region: Region
     type: ImageType
 
     @validator("symbol")

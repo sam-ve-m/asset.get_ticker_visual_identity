@@ -1,56 +1,36 @@
 # Jormungandr
-from func.src.domain.enums import RegionEnum
-from func.src.domain.exception import TickerNotFound
-from func.src.repositories.s3 import S3Repository
-from func.src.repositories.redis import RedisRepository
+from ..domain.enums.response import Region
+from ..domain.validators.validator import Ticker
+from ..domain.exceptions.exception import TickerNotFound
+from ..repositories.s3.repository import S3Repository
+from ..repositories.redis.repository import RedisRepository
+
+from ..domain.ticker.model import TickerModel
 
 # Third party
 from etria_logger import Gladsheim
-from decouple import config
 
 
 class TickerVisualIdentityService:
-    def __init__(self, params):
-        self.params = params
-
-    def get_ticker_url(self) -> dict:
-        self._treatment_ticker_symbol()
-        ticker_path = self._ticker_path_by_type()
-        ticker_url_access = TickerVisualIdentityService._get_or_set_ticker_url_access(ticker_path=ticker_path)
-        ticker_type = self.params["type"]
-        result = {"url": ticker_url_access, "type": ticker_type}
-        return result
-
-    def _ticker_path_by_type(self) -> str:
-        region = self.params["region"]
-        ticker_type = self.params["type"]
-        symbol = self.params["symbol"]
-        url_per_type = {
-            "logo": f'{config("INITIAL_PATH")}/{region}/{symbol}/{ticker_type}.{config("LOGO_EXTENSION")}',
-            "banner": f'{config("INITIAL_PATH")}/{region}/{symbol}/{ticker_type}.{config("BANNER_EXTENSION")}',
-            "thumbnail": f'{config("INITIAL_PATH")}/{region}/{symbol}/{ticker_type}.{config("THUMBNAIL_EXTENSION")}',
-        }
-        url_path = url_per_type.get(ticker_type, None)
-        return url_path
-
-    def _treatment_ticker_symbol(self):
-        region = self.params["region"]
-        if region == RegionEnum.BR:
-            ticker = self.params["symbol"]
-            ticker_slice_index = int(config("TICKER_SLICE_INDEX"))
-            ticker_without_suffix_number = ticker[:ticker_slice_index]
-            self.params.update(symbol=ticker_without_suffix_number)
 
     @staticmethod
-    def _get_or_set_ticker_url_access(ticker_path) -> str:
-        result = RedisRepository.get(ticker_path)
+    async def get_ticker_url(payload_validated: Ticker) -> dict:
+        ticker_model = TickerModel(payload_validated=payload_validated)
+        ticker_path = await ticker_model.get_ticker_path_by_type()
+        ticker_url_access = await TickerVisualIdentityService._get_or_set_ticker_url_access(ticker_path=ticker_path)
+        result = await ticker_model.get_result_template(ticker_url_access=ticker_url_access)
+        return result
+
+    @staticmethod
+    async def _get_or_set_ticker_url_access(ticker_path: str) -> str:
+        result = await RedisRepository.get(ticker_path)
         if result:
             ticker_url_access = result.decode()
             return ticker_url_access
         ticker_exist = S3Repository.get_ticker(ticker_path=ticker_path)
         if ticker_exist:
-            ticker_url_access = S3Repository.generate_ticker_url(ticker_path=ticker_path)
-            RedisRepository.set(key=ticker_path, value=ticker_url_access)
+            ticker_url_access = await S3Repository.generate_ticker_url(ticker_path=ticker_path)
+            await RedisRepository.set(key=ticker_path, value=ticker_url_access)
             return ticker_url_access
         Gladsheim.error(message=f"No images found for this ticker path::{ticker_path}")
         raise TickerNotFound

@@ -47,7 +47,7 @@ spec:
             - name: REDIS_DATA_EXPIRATION_IN_SECONDS
               value: "3600"
             - name: REDIS_HOST
-              value: "redis://bnd:jkl321pqr@172.30.11.235:6379"
+              value: "redis://bnd:jkl321pqr@172.30.11.235:6379?db=1"
             - name: INITIAL_PATH
               value: "companies"
   version: 2

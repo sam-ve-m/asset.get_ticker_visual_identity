@@ -26,7 +26,7 @@ class ImageType(StrEnum):
         return self.value
 
 
-class RegionEnum(StrEnum):
+class Region(StrEnum):
     BR = "BR"
     US = "US"
 

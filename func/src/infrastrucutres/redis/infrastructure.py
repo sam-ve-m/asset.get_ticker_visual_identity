@@ -1,7 +1,7 @@
 # Third party
+from aioredis import from_url
 from decouple import config
 from etria_logger import Gladsheim
-from aioredis import from_url
 
 
 class RedisInfrastructure:

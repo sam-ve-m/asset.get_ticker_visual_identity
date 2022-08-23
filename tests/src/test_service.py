@@ -1,6 +1,6 @@
 # Jormungandr
 from func.src.domain.exceptions.exception import TickerNotFound
-from func.src.domain.validators.validator import TickerModel
+from func.src.domain.validators.validator import Ticker
 from tests.src.stubs import stub_path, stub_path_encoded, stub_params_type_invalid, stub_params_region_invalid
 
 # Standards
@@ -45,12 +45,12 @@ def test_when_symbol_is_invalid_then_raises(mock_redis_get, mock_s3_get, mock_en
 
 def test_when_region_is_invalid_then_raises():
     with pytest.raises(ValueError):
-        TickerModel(**stub_params_region_invalid)
+        Ticker(**stub_params_region_invalid)
 
 
 def test_when_type_is_invalid_then_raises():
     with pytest.raises(ValueError):
-        TickerModel(**stub_params_type_invalid)
+        Ticker(**stub_params_type_invalid)
 
 
 @patch('func.src.service.config', side_effect=[4, 'companies', 'png', 'companies', 'png', 'companies', 'png'])
