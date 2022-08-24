@@ -29,19 +29,7 @@ class S3Infrastructure:
         session = await S3Infrastructure._get_session()
         try:
             async with session.resource("s3") as s3_resource:
-                bucket = await s3_resource.Bucket("dtvm-visual-identity-files")
-                yield bucket
+                yield s3_resource
         except Exception as ex:
             Gladsheim.error(error=ex, message="Error trying to get s3 resource")
             raise ex
-
-    # @classmethod
-    # @asynccontextmanager
-    # async def get_bucket(cls, bucket_name: str):
-    #     s3_resource = await cls.get_resource()
-    #     try:
-    #         bucket = await s3_resource.Bucket(bucket_name)
-    #         yield bucket
-    #     except Exception as ex:
-    #         Gladsheim.error(error=ex, message="Error trying to get bucket")
-    #         raise ex

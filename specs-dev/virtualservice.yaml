@@ -11,9 +11,9 @@ spec:
   http:
   - match:
     - uri:
-        prefix: /router/get-ticker-visual-identity
+        prefix: /router/get_ticker_visual_identity
     rewrite:
-      uri: /get-ticker-visual-identity
+      uri: /get_ticker_visual_identity
     route:
     - destination:
         host: router.fission.svc.cluster.local

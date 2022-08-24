@@ -1,2 +1,2 @@
 class TickerNotFound(Exception):
-    msg = "No images found."
+    msg = "No images found for this ticker path."

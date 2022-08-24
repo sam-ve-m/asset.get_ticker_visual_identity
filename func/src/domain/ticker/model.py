@@ -1,5 +1,5 @@
 # Jormungandr
-from ..enums.response import Region
+from ..enums.regions import RegionOptions
 from ..validators.validator import Ticker
 
 # Third party
@@ -7,15 +7,16 @@ from decouple import config
 
 
 class TickerModel:
-
     def __init__(self, payload_validated: Ticker):
         self.region = payload_validated.region
         self.ticker_type = payload_validated.type
-        self.symbol = self._treatment_ticker_symbol(payload_validated.symbol)
+        self.symbol = self._treatment_ticker_symbol(
+            symbol=payload_validated.symbol, region=payload_validated.region
+        )
 
     @staticmethod
-    def _treatment_ticker_symbol(symbol: str, region: Region):
-        if region == Region.BR:
+    def _treatment_ticker_symbol(symbol: str, region: RegionOptions):
+        if region == RegionOptions.BR:
             ticker_slice_index = int(config("TICKER_SLICE_INDEX"))
             return symbol[:ticker_slice_index]
         return symbol

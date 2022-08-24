@@ -1,6 +1,5 @@
 # Standards
 from enum import IntEnum
-from strenum import StrEnum
 
 
 class InternalCode(IntEnum):
@@ -12,23 +11,6 @@ class InternalCode(IntEnum):
     DATA_ALREADY_EXISTS = 98
     DATA_NOT_FOUND = 99
     INTERNAL_SERVER_ERROR = 100
-
-    def __repr__(self):
-        return self.value
-
-
-class ImageType(StrEnum):
-    banner = "banner"
-    logo = "logo"
-    thumbnail = "thumbnail"
-
-    def __repr__(self):
-        return self.value
-
-
-class Region(StrEnum):
-    BR = "BR"
-    US = "US"
 
     def __repr__(self):
         return self.value

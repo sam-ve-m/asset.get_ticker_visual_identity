@@ -14,10 +14,10 @@ spec:
   ingressconfig:
     annotations: null
     host: '*'
-    path: /get-ticker-visual-identity
+    path: /get_ticker_visual_identity
     tls: ""
   method: ""
   methods:
   - GET
   prefix: ""
-  relativeurl: /get-ticker-visual-identity
+  relativeurl: /get_ticker_visual_identity
