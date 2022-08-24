@@ -50,4 +50,6 @@ spec:
               value: "redis://jormungandr:oUjqwnmdDSA391dja@172.30.11.235:6379?db=1"
             - name: INITIAL_PATH
               value: "companies"
+            - name: ASGI_FRAMEWORK
+              value: "HYPERCORN"
   version: 2
