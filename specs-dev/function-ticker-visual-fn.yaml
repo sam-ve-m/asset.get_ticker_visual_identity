@@ -1,0 +1,55 @@
+include:
+- ./func/*
+kind: ArchiveUploadSpec
+name: func-eLgG
+
+---
+apiVersion: fission.io/v1
+kind: Package
+metadata:
+  creationTimestamp: null
+  name: ticker-visual-fn-8166d491-f7d3-404e-9c78-e9eff3899a87
+  namespace: default
+spec:
+  deployment:
+    checksum: {}
+  environment:
+    name: get-ticker-env
+    namespace: default
+  source:
+    checksum: {}
+    type: url
+    url: archive://func-eLgG
+status:
+  buildstatus: pending
+  lastUpdateTimestamp: "2022-06-30T20:29:41Z"
+
+---
+apiVersion: fission.io/v1
+kind: Function
+metadata:
+  creationTimestamp: null
+  name: ticker-visual-fn
+  namespace: default
+spec:
+  InvokeStrategy:
+    ExecutionStrategy:
+      ExecutorType: newdeploy
+      MaxScale: 12
+      MinScale: 6
+      SpecializationTimeout: 120
+      TargetCPUPercent: 80
+    StrategyType: execution
+  concurrency: 500
+  environment:
+    name: get-ticker-env
+    namespace: default
+  functionTimeout: 60
+  idletimeout: 120
+  package:
+    functionName: main.get_ticker_visual_identity
+    packageref:
+      name: ticker-visual-fn-8166d491-f7d3-404e-9c78-e9eff3899a87
+      namespace: default
+  requestsPerPod: 1
+  resources: {}
