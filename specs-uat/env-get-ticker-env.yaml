@@ -16,7 +16,7 @@ spec:
     container:
       name: ""
       resources: {}
-    image: nexus.sigame.com.br/python-env-3.8:0.0.5
+    image: nexus.sigame.com.br/fission-async:0.1.6
     podspec:
       containers:
         - name: get-ticker-env
@@ -47,4 +47,6 @@ spec:
               value: "redis://jormungandr:Mdn45oodsanPOhbrewbDS@172.30.19.183:6379"
             - name: INITIAL_PATH
               value: "companies"
+            - name: ASGI_FRAMEWORK
+              value: "HYPERCORN"
   version: 2

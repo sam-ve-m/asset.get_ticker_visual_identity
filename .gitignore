@@ -150,3 +150,6 @@ venv/lib/python3.8/site-packages/click/
 venv/lib/python3.8/site-packages/
 
 venv/
+
+# others
+.coverage

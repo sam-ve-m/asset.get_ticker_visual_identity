@@ -1,8 +1,8 @@
 # Jormungandr
-from src.domain.exception import TickerNotFound
-from src.service import TickerVisualIdentityService
-from src.domain.enums import InternalCode
-from src.domain.validator import TickerModel
+from src.domain.exceptions.exception import TickerNotFound
+from src.services.ticker import TickerVisualIdentityService
+from src.domain.enums.response import InternalCode
+from src.domain.validators.validator import Ticker
 from src.domain.response.model import ResponseModel
 
 # Standards
@@ -13,35 +13,34 @@ from etria_logger import Gladsheim
 from flask import request, Response
 
 
-def get_ticker_visual_identity() -> Response:
-    json_params = request.get_json()
+async def get_ticker_visual_identity() -> Response:
     try:
-        validated_params = TickerModel(**json_params).dict()
-        ticker_visual_identity_service = TickerVisualIdentityService(params=validated_params)
-        result = ticker_visual_identity_service.get_ticker_url()
+        raw_payload = request.args.to_dict()
+        payload_validated = Ticker(**raw_payload)
+        result = await TickerVisualIdentityService.get_ticker_url(
+            payload_validated=payload_validated
+        )
         response = ResponseModel(
-            result=result,
-            success=True,
-            code=InternalCode.SUCCESS
+            result=result, success=True, code=InternalCode.SUCCESS
         ).build_http_response(status=HTTPStatus.OK)
         return response
 
     except TickerNotFound as ex:
-        result = {
-            "url": None,
-            "type": None
-        }
+        result = {"url": None, "type": None}
         response = ResponseModel(
             result=result,
             success=True,
             message=ex.msg,
-            code=InternalCode.DATA_NOT_FOUND
+            code=InternalCode.DATA_NOT_FOUND,
         ).build_http_response(status=HTTPStatus.OK)
         return response
 
     except ValueError as ex:
-        Gladsheim.error(ex=ex, message=f'Jormungandr::validator::There are invalid format'
-                                       'or extra/missing parameters')
+        Gladsheim.error(
+            ex=ex,
+            message=f"Jormungandr::validator::There are invalid format"
+            "or extra/missing parameters",
+        )
         response = ResponseModel(
             success=False,
             code=InternalCode.INVALID_PARAMS,
@@ -50,7 +49,9 @@ def get_ticker_visual_identity() -> Response:
         return response
 
     except Exception as ex:
-        Gladsheim.error(error=ex, message=f"Jormungandr::get_ticker_visual_identity::{str(ex)}")
+        Gladsheim.error(
+            error=ex, message=f"Jormungandr::get_ticker_visual_identity::{str(ex)}"
+        )
         response = ResponseModel(
             success=False,
             code=InternalCode.INTERNAL_SERVER_ERROR,
