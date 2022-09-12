@@ -7,7 +7,6 @@ name: func-eLgG
 apiVersion: fission.io/v1
 kind: Package
 metadata:
-  creationTimestamp: null
   name: ticker-visual-fn-8166d491-f7d3-404e-9c78-e9eff3899a87
   namespace: default
 spec:
@@ -20,15 +19,11 @@ spec:
     checksum: {}
     type: url
     url: archive://func-eLgG
-status:
-  buildstatus: pending
-  lastUpdateTimestamp: "2022-06-30T20:29:41Z"
 
 ---
 apiVersion: fission.io/v1
 kind: Function
 metadata:
-  creationTimestamp: null
   name: ticker-visual-fn
   namespace: default
 spec:
@@ -36,7 +31,7 @@ spec:
     ExecutionStrategy:
       ExecutorType: newdeploy
       MaxScale: 12
-      MinScale: 6
+      MinScale: 4
       SpecializationTimeout: 120
       TargetCPUPercent: 80
     StrategyType: execution
